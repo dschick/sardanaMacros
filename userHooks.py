@@ -12,9 +12,14 @@ def userPreAcq(self):
     altOn = acqConf['altOn']
     
     if altOn:
-        self.output("pre-acq hook altOn")
+        self.info("pre-acq hook altOn")
+        # move magnet to minus amplitude
+        magnConf = self.getEnv('magnConf')
+        ampl = magnConf['ampl']
+        kepco = self.getMotor("kepco")
+        kepco.move(-1*ampl)
     else:
-        self.output("pre-acq hook altOff")
+        self.info("pre-acq hook altOff")
     
 
 
@@ -24,7 +29,18 @@ def userPostAcq(self):
     altOn = acqConf['altOn']
     
     if altOn:
-        self.output("pre-acq hook altOn")
+        self.info("post-acq hook altOn")
+        # move magnet to minus amplitude
+        magnConf = self.getEnv('magnConf')
+        ampl = magnConf['ampl']
+        kepco = self.getMotor("kepco")
+        kepco.move(+1*ampl)
+        
+        parent = self.getParentMacro()
+        if parent:
+            integ_time = parent.integ_time
+            mg = parent._gScan.measurement_group
+            mg.count(integ_time)        
     else:
-        self.output("pre-acq hook altOff")
+        self.info("post-acq hook altOff")
     
