@@ -5,11 +5,18 @@ Created on Tue May 22 12:57:08 2018
 @author: korff
 """
 from sardana.macroserver.macro import macro
+import time
 
 @macro()
 def userPreAcq(self):
     acqConf = self.getEnv('acqConf')
     altOn = acqConf['altOn']
+    waittime = acqConf['waittime']
+    
+    if waittime:
+        time.sleep(waittime)
+        self.info('waiting for %f', waittime)
+    
     
     if altOn:
         self.info("pre-acq hook altOn")
