@@ -11,11 +11,11 @@ import time
 def userPreAcq(self):
     acqConf = self.getEnv('acqConf')
     altOn = acqConf['altOn']
-    waittime = acqConf['waittime']
+    waittime = acqConf['waitTime']
     
     if waittime:
         time.sleep(waittime)
-        self.info('waiting for %f', waittime)
+        self.info('waiting for %.2f', waittime)
     
     
     if altOn:
