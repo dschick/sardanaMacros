@@ -24,15 +24,15 @@ def wpCalibScan(self):
     self.execMacro('altOff')
     self.execMacro('pumpOff')   
         
-    ret = self.createMacro('ascan', 'wp', '-5', '55', '60', '1')
+    scan, _ = self.createMacro('ascan', 'wp', '-5', '55', '60', '1')
     # createMacro returns a tuple composed from a macro object
     # and the result of the Macro.prepare method
-    my_scan, _ = ret
-    self.runMacro(my_scan)    
+    
+    self.runMacro(scan)    
     
     self.execMacro('waittime', oldWaitTime)
     
-    data = my_scan.data
+    data = scan.data
     
     wp = []
     pm = []
