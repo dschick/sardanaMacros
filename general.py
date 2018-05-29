@@ -35,7 +35,7 @@ def ct_altOn(self, integ_time):
 #    self.info(data.data[pumped])
 #    self.info(data.data[unpumped])
     
-    storage = PyTango.DeviceProxy("moke/alt_on_counter/1")
+    storage = PyTango.DeviceProxy("moke/alton/1")
     storage["pumpedm"]   = data.data[pumped]
     storage["unpumpedm"] = data.data[unpumped]
     
