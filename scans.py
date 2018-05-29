@@ -283,7 +283,7 @@ class toothedtriangle(Macro, Hookable):
         return self._gScan.data
 
 
-class regscan(Macro):
+class regscan(Macro, Hookable):
     """regscan.
     Do an absolute scan of the specified motor with different number of intervals for each region.
     It uses the gscan framework.
