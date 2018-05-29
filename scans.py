@@ -289,10 +289,8 @@ class regscan(Macro):
     It uses the gscan framework.
     """
     
-    hints = {'scan': 'regscan',
-             'allowsHooks': ('pre-scan', 'pre-move', 'post-move', 'pre-acq',
-                             'post-acq', 'post-step', 'post-scan')
-             }
+    hints = {'scan': 'regscan', 'allowsHooks': (
+        'pre-scan', 'pre-move', 'post-move', 'pre-acq', 'post-acq', 'post-step', 'post-scan')}
     
     env = ('ActiveMntGrp',)
 
@@ -322,6 +320,14 @@ class regscan(Macro):
     def _generator(self):
         step = {}
         step["integ_time"] = self.integ_time
+        step["pre-scan-hooks"] = self.getHooks('pre-scan')
+        step["pre-move-hooks"] = self.getHooks('pre-move')
+        step["post-move-hooks"] = self.getHooks('post-move')
+        step["pre-acq-hooks"] = self.getHooks('pre-acq')
+        step[
+            "post-acq-hooks"] = self.getHooks('post-acq') + self.getHooks('_NOHINT_')
+        step["post-step-hooks"] = self.getHooks('post-step')
+        step["post-scan-hooks"] = self.getHooks('post-scan')
 
         point_id = 0
         region_start = self.start_pos
