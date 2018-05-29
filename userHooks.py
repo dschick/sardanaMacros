@@ -16,38 +16,43 @@ def userPreAcq(self):
     if waittime:
         time.sleep(waittime)
         self.info('waiting for %.2f', waittime)
-    
-    
+        
     if altOn:
-        self.info("pre-acq hook altOn")
+        #self.info("pre-acq hook altOn")
         # move magnet to minus amplitude
         magnConf = self.getEnv('magnConf')
         ampl = magnConf['ampl']
+        magwaittime = magnConf['waitTime']
         kepco = self.getMotor("kepco")
         kepco.move(-1*ampl)
+        time.sleep(magwaittime)
+        
+        parent = self.getParentMacro()
+        if parent:
+            integ_time = parent.integ_time
+#            mg = parent._gScan.measurement_group
+#            mg.count(integ_time)    
+            self.execMacro('ct_altOn', integ_time)
+                       
+                       
+        kepco.move(+1*ampl)
+        time.sleep(magwaittime)
+        
     else:
-        self.info("pre-acq hook altOff")
+        #self.info("pre-acq hook altOff")
+        pass
     
-
-
 @macro()
 def userPostAcq(self):
     acqConf = self.getEnv('acqConf')
     altOn = acqConf['altOn']
     
     if altOn:
-        self.info("post-acq hook altOn")
+        #self.info("post-acq hook altOn")
         # move magnet to minus amplitude
-        magnConf = self.getEnv('magnConf')
-        ampl = magnConf['ampl']
-        kepco = self.getMotor("kepco")
-        kepco.move(+1*ampl)
-        
-        parent = self.getParentMacro()
-        if parent:
-            integ_time = parent.integ_time
-            mg = parent._gScan.measurement_group
-            mg.count(integ_time)        
+        pass
+           
     else:
-        self.info("post-acq hook altOff")
+        #self.info("post-acq hook altOff")
+        pass
     
