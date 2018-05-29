@@ -6,6 +6,8 @@ Created on Tue May 22 12:57:08 2018
 """
 from sardana.macroserver.macro import macro
 import time
+from dirsync import sync
+import os
 
 @macro()
 def userPreAcq(self):
@@ -54,4 +56,16 @@ def userPostAcq(self):
     else:
         #self.info("post-acq hook altOff")
         pass
+    
+@macro()
+def userPostScan(self):
+    ScanDir = self.getEnv('ScanDir')
+    RemoteScanDir = self.getEnv('RemoteScanDir')
+        
+    if os.path.exists(RemoteScanDir):
+        self.info('Syncing data from %s to %s', ScanDir, RemoteScanDir)
+        sync(ScanDir, RemoteScanDir, 'sync', create=True)        
+    else:
+        self.warning('RemoteScanDir %s does not exist - no folder syncing', RemoteScanDir)
+    
     
