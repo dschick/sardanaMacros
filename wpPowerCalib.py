@@ -17,7 +17,7 @@ def wpCalibScan(self):
     oldWaitTime = acqConf['waitTime']
     newWaitTime = 1
     
-    counter = 'tango://epics-archiver.hhg.lab:10000/expchan/epicszctrl/1'
+    counter = 'newportPM'
     motor   = 'wp'
     
     self.execMacro('waittime', newWaitTime)
@@ -31,15 +31,15 @@ def wpCalibScan(self):
     self.runMacro(scan)    
     
     self.execMacro('waittime', oldWaitTime)
-    
+        
     data = scan.data
-    
+        
     wp = []
     pm = []
     
-    for i in range(len(data)):
-        pm.append(data.records[i].data[counter])
-        wp.append(data.records[i].data[motor])
+    for idx, rc in data.items():
+        pm.append(rc[counter])
+        wp.append(rc[motor])
     
     mod = lmfit.Model(sinSqrd)
     par = lmfit.Parameters()

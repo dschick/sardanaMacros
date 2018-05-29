@@ -34,7 +34,6 @@ def userPreAcq(self):
 #            mg.count(integ_time)    
             self.execMacro('ct_altOn', integ_time)
                        
-                       
         kepco.move(+1*ampl)
         time.sleep(magwaittime)
         

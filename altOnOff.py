@@ -17,7 +17,7 @@ def altOff(self):
     self.setEnv('acqConf', acqConf)
     self.info('switching altOff')
     
-    # unsetting all variables
+    # setting all M-counter to 0
     storage = PyTango.DeviceProxy("moke/alton/1")
     storage["pumpedm"]      = 0
     storage["unpumpedm"]    = 0
@@ -25,3 +25,4 @@ def altOff(self):
     storage["unpumpederrm"] = 0
     storage["relm"]         = 0
     storage["rels2sm"]      = 0
+    
