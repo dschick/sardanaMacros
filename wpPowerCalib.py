@@ -60,6 +60,7 @@ def wpCalibScan(self):
     self.pyplot.xlabel('laser power [W]')
     self.pyplot.legend()
     
+    self.execMacro('set_lim', out.best_values['P0'], out.best_values['Pm'])
     self.execMacro('setPowerParameter', out.best_values['P0'], out.best_values['Pm'], out.best_values['offset'], out.best_values['period'])
     
     
