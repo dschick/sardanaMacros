@@ -1,5 +1,6 @@
 from sardana.macroserver.macro import imacro, macro, Type
 import PyTango
+import numpy as np
 
 @macro([["time", Type.Float, None, "time in seconds"] ])
 def waittime(self, time):
@@ -64,6 +65,20 @@ def fluenceconf(self):
     self.output("pumpVer: %.2f um", pumpVer)
     self.output("refl   : %.2f %%", refl)
     self.output("repRate: %.2f Hz", repRate)
+    
+    power = self.getPseudoMotor("power")
+    fluence = self.getPseudoMotor("fluence")
+    minPower, maxPower = power.getPositionObj().getLimits()
+    
+    trans   = 1-(refl/100)
+    minFluence = minPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
+    maxFluence = maxPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
+    
+    self.output('Setting fluence limits using current power limits:')
+    fluence.getPositionObj().setLimits(minFluence,maxFluence)
+    self.output("minimum fluence %.3f mJ/cm^2", minFluence)
+    self.output("maximum fluence %.3f mJ/cm^2", maxFluence)  
+    
 
 @macro([["P0", Type.Float, None, "P0"],
         ["Pm", Type.Float, None, "Pm"],
