@@ -60,25 +60,9 @@ def wpCalibScan(self):
     self.pyplot.xlabel('laser power [W]')
     self.pyplot.legend()
     
-    self.execMacro('set_lim', out.best_values['P0'], out.best_values['Pm'])
+    self.execMacro('set_lim', 'power', out.best_values['P0'], out.best_values['Pm'])
     self.execMacro('setPowerParameter', out.best_values['P0'], out.best_values['Pm'], out.best_values['offset'], out.best_values['period'])
     
     
 def sinSqrd(x,Pm,P0,offset,period):
-    return Pm*(numpy.sin((x-offset)*2/180.*numpy.pi*period)**2) + P0
-
-
-@macro([["P0", Type.Float, None, "P0"],
-        ["Pm", Type.Float, None, "Pm"],
-        ["offset", Type.Float, None, "offset"],
-        ["period", Type.Float, None, "period"]])
-def setPowerParameter(self, P0, Pm, offset, period):
-    """This sets the parameters of the power pseudo motor"""
-    
-    power = PyTango.DeviceProxy("pm/powerctrl/1")
-    self.info('Update parameters of pseudo motor power')
-    power.offset = offset
-    power.period = period
-    power.P0     = P0
-    power.Pm     = Pm
-    
+    return Pm*(numpy.sin((x-offset)*2/180.*numpy.pi*period)**2) + P0    
