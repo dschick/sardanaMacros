@@ -25,26 +25,26 @@ def magnsettings(self, ampl, waittime):
 def fluenceconf(self):
     fluencePM = PyTango.DeviceProxy("pm/fluencectrl/1")
     try:
-        lastHorFWHM = fluencePM.horFWHM
-        lastVerFWHM = fluencePM.verFWHM
+        lastPumpHor = fluencePM.pumpHor
+        lastPumpVer = fluencePM.pumpVer
         lastRefl    = fluencePM.refl
         lastRepRate = fluencePM.repRate
     except:
-        lastHorFWHM = 100
-        lastVerFWHM = 100
+        lastPumpHor = 100
+        lastPumpVer = 100
         lastRefl    = 0
         lastRepRate = 3000
         
     
     
     label, unit = "hor", "um"
-    horFWHM = self.input("What is the horizontal beam diameter (FWHM)?", data_type=Type.Float,
+    pumpHor = self.input("What is the horizontal beam diameter (FWHM)?", data_type=Type.Float,
                       title="Horizontal beam diameter", key=label, unit=unit,
-                      default_value=lastHorFWHM, minimum=0.0, maximum=100000)
+                      default_value=lastPumpHor, minimum=0.0, maximum=100000)
     label, unit = "ver", "um"
-    verFWHM = self.input("What is the vertical beam diameter (FWHM)?", data_type=Type.Float,
+    pumpVer = self.input("What is the vertical beam diameter (FWHM)?", data_type=Type.Float,
                       title="Vertical beam diameter", key=label, unit=unit,
-                      default_value=lastVerFWHM, minimum=0.0, maximum=100000)
+                      default_value=lastPumpVer, minimum=0.0, maximum=100000)
     label, unit = "refl", "%"
     refl = self.input("What is the sample reflectivity?", data_type=Type.Float,
                       title="Sample reflectivity", key=label, unit=unit,
@@ -53,18 +53,17 @@ def fluenceconf(self):
     repRate = self.input("What is the laser repetition rate?", data_type=Type.Float,
                       title="Laser repetition rate", key=label, unit=unit,
                       default_value=lastRepRate, minimum=0.0, maximum=10000)
-    
-#    self.output("You selected a %s of %f %s", label, horFWHM, unit)
-#    self.output("You selected a %s of %f %s", label, horFWHM, unit)
-#    self.output("You selected a %s of %f %s", label, horFWHM, unit)
-#    self.output("You selected a %s of %f %s", label, horFWHM, unit)
-    
-    fluencePM.horFWHM = horFWHM
-    fluencePM.verFWHM = verFWHM
+        
+    fluencePM.pumpHor = pumpHor
+    fluencePM.pumpVer = pumpVer
     fluencePM.refl    = refl
     fluencePM.repRate = repRate
     
-    self.output("values saved!")
+    self.output("Settings:")
+    self.output("pumpHor: %.2f um", pumpHor)
+    self.output("pumpVer: %.2f um", pumpVer)
+    self.output("refl   : %.2f %%", refl)
+    self.output("repRate: %.2f Hz", repRate)
 
 @macro([["P0", Type.Float, None, "P0"],
         ["Pm", Type.Float, None, "Pm"],
