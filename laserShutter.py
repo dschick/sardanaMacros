@@ -1,7 +1,7 @@
 from epics import caget, caput
 import time
 
-from sardana.macroserver.macro import Macro, macro, Type
+from sardana.macroserver.macro import macro
 
 @macro()
 def laserOn(self):
