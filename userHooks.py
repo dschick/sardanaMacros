@@ -17,7 +17,7 @@ def userPreAcq(self):
     
     if waittime:
         time.sleep(waittime)
-        self.info('waiting for %.2f', waittime)
+        self.info('waiting for %.2f s', waittime)
         
     if altOn:
         #self.info("pre-acq hook altOn")
