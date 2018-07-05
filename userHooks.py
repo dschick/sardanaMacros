@@ -4,7 +4,7 @@ Created on Tue May 22 12:57:08 2018
 
 @author: korff
 """
-from sardana.macroserver.macro import macro
+from sardana.macroserver.macro import macro, Type
 import time
 from dirsync import sync
 import os
@@ -20,7 +20,6 @@ def userPreAcq(self):
         self.info('waiting for %.2f s', waittime)
         
     if altOn:
-        #self.info("pre-acq hook altOn")
         # move magnet to minus amplitude
         magnConf = self.getEnv('magnConf')
         ampl = magnConf['ampl']
@@ -28,16 +27,18 @@ def userPreAcq(self):
         kepco = self.getMotor("kepco")
         kepco.move(-1*ampl)
         time.sleep(magwaittime)
+        self.info('mag. waiting for %.2f s', magwaittime)
         
         parent = self.getParentMacro()
         if parent:
             integ_time = parent.integ_time
-#            mg = parent._gScan.measurement_group
-#            mg.count(integ_time)    
-            self.execMacro('ct_altOn', integ_time)
+            mnt_grp_name = self.getEnv('ActiveMntGrp')
+            mnt_grp = self.getObj(mnt_grp_name, type_class=Type.MeasurementGroup)
+            state, data = mnt_grp.count(integ_time)
                        
         kepco.move(+1*ampl)
         time.sleep(magwaittime)
+        self.info('mag. waiting for %.2f s', magwaittime)
         
     else:
         #self.info("pre-acq hook altOff")

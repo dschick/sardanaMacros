@@ -95,31 +95,3 @@ def setPowerParameter(self, P0, Pm, offset, period):
     power.Pm     = Pm
 
    
-@macro([["integ_time", Type.Float, None, "integration time"] ])
-def ct_altOn(self, integ_time):
-    
-    mnt_grp_name = self.getEnv('ActiveMntGrp')
-    mnt_grp = self.getObj(mnt_grp_name, type_class=Type.MeasurementGroup)
-        
-    state, data = mnt_grp.count(integ_time)
-    for ch_info in mnt_grp.getChannelsEnabledInfo():
-        if ch_info.label == 'Pumped':
-            PumpedFN = ch_info.full_name
-        elif ch_info.label == 'Unpumped':
-            UnpumpedFN = ch_info.full_name
-        elif ch_info.label == 'PumpedErr':
-            PumpedErrFN = ch_info.full_name
-        elif ch_info.label == 'UnpumpedErr':
-            UnpumpedErrFN = ch_info.full_name
-        elif ch_info.label == 'Rel':
-            RelFN = ch_info.full_name
-        elif ch_info.label == 'RelS2S':
-            RelS2SFN = ch_info.full_name
-            
-    storage = PyTango.DeviceProxy("moke/alton/1")
-    storage["pumpedm"]      = data.get(PumpedFN)
-    storage["unpumpedm"]    = data.get(UnpumpedFN)
-    storage["pumpederrm"]   = data.get(PumpedErrFN)
-    storage["unpumpederrm"] = data.get(UnpumpedErrFN)
-    storage["relm"]         = data.get(RelFN)
-    storage["rels2sm"]      = data.get(RelS2SFN)
