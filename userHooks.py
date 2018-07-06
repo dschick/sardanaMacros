@@ -11,13 +11,13 @@ import os
 
 @macro()
 def userPreAcq(self):
-    acqConf = self.getEnv('acqConf')
-    altOn = acqConf['altOn']
+    acqConf  = self.getEnv('acqConf')
+    altOn    = acqConf['altOn']
     waittime = acqConf['waitTime']
     
     if waittime:
         time.sleep(waittime)
-        self.info('waiting for %.2f s', waittime)
+        self.debug('waiting for %.2f s', waittime)
         
     if altOn:
         # move magnet to minus amplitude
@@ -26,22 +26,20 @@ def userPreAcq(self):
         magwaittime = magnConf['waitTime']
         kepco = self.getMotor("kepco")
         kepco.move(-1*ampl)
-        time.sleep(magwaittime)
-        self.info('mag. waiting for %.2f s', magwaittime)
+        self.debug('mag. waiting for %.2f s', magwaittime)
+        time.sleep(magwaittime)        
         
         parent = self.getParentMacro()
         if parent:
             integ_time = parent.integ_time
-            mnt_grp_name = self.getEnv('ActiveMntGrp')
-            mnt_grp = self.getObj(mnt_grp_name, type_class=Type.MeasurementGroup)
+            mnt_grp = self.getObj(self.getEnv('ActiveMntGrp'), type_class=Type.MeasurementGroup)
             state, data = mnt_grp.count(integ_time)
                        
         kepco.move(+1*ampl)
-        time.sleep(magwaittime)
-        self.info('mag. waiting for %.2f s', magwaittime)
+        self.debug('mag. waiting for %.2f s', magwaittime)
+        time.sleep(magwaittime)        
         
     else:
-        #self.info("pre-acq hook altOff")
         pass
     
 @macro()

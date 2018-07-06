@@ -1,27 +1,27 @@
-from sardana.macroserver.macro import macro
+from sardana.macroserver.macro import macro, Type
 
 @macro()
-def altOn(self):
-    """Macro altOn"""
+def alton(self):
+    """Macro alton"""
     acqConf = self.getEnv('acqConf')
     acqConf['altOn'] = True
     self.setEnv('acqConf', acqConf)
-    self.info('switching altOn')
+    self.info('switching alternate ON')
+    
+    # enable minus field counters
+    mnt_grp = self.getObj(self.getEnv('ActiveMntGrp'), type_class=Type.MeasurementGroup)
+    mnt_grp.enableChannels(['PumpedM', 'UnpumpedM', 'RelM', 'PumpedErrM', 
+                             'UnpumpedErrM', 'numTriggersM', 'durationM'])
 
 @macro()    
-def altOff(self):
-    """Macro altOff"""
+def altoff(self):
+    """Macro altoff"""
     acqConf = self.getEnv('acqConf')
     acqConf['altOn'] = False
     self.setEnv('acqConf', acqConf)
-    self.info('switching altOff')
+    self.info('switching alternate OFF')
     
-    # setting all M-counter to 0
-#    storage = PyTango.DeviceProxy("moke/alton/1")
-#    storage["pumpedm"]      = 0
-#    storage["unpumpedm"]    = 0
-#    storage["pumpederrm"]   = 0
-#    storage["unpumpederrm"] = 0
-#    storage["relm"]         = 0
-#    storage["rels2sm"]      = 0
-    
+    # disable minus field counters
+    mnt_grp = self.getObj(self.getEnv('ActiveMntGrp'), type_class=Type.MeasurementGroup)
+    mnt_grp.disableChannels(['PumpedM', 'UnpumpedM', 'RelM', 'PumpedErrM', 
+                             'UnpumpedErrM', 'numTriggersM', 'durationM'])
