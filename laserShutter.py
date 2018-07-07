@@ -4,7 +4,7 @@ import time
 from sardana.macroserver.macro import macro
 
 @macro()
-def laserOn(self):
+def laseron(self):
     """Macro laserOn"""
     pvPrefix = 'SHUTTER:NOPA:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
@@ -20,7 +20,7 @@ def laserOn(self):
             self.output("Could not open Laser shutter")
 
 @macro()
-def laserOff(self):
+def laseroff(self):
     """Macro laserOn"""
     pvPrefix = 'SHUTTER:NOPA:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
@@ -36,7 +36,7 @@ def laserOff(self):
             self.output("Could not close Laser shutter")
 
 @macro()
-def pumpOn(self):
+def pumpon(self):
     """Macro laserOn"""
     pvPrefix = 'SHUTTER:MOKE:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
@@ -52,7 +52,7 @@ def pumpOn(self):
             self.output("Could not open Pump shutter")
 
 @macro()
-def pumpOff(self):
+def pumpoff(self):
     """Macro laserOn"""
     pvPrefix = 'SHUTTER:MOKE:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)

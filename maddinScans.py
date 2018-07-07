@@ -7,12 +7,12 @@ def fluenceDelayScan20180523(self):
     self.output("Running fluenceDelayScan20180523...")
 
     wpAngles = np.r_[5:46:5]
-    kepco = self.getMotor("kepco")
-    wp = self.getMotor("wp")
+    kepco = self.getMotion("kepco")
+    wp = self.getMotion("wp")
     magCurr = 40    
     
-    self.execMacro('laserOn')
-    self.execMacro('pumpOn')
+    self.execMacro('laseron')
+    self.execMacro('pumpon')
     self.execMacro('waittime 0')
     
     for wpAngle in wpAngles:
@@ -30,10 +30,10 @@ def fluenceDelayScan20180523(self):
         kepco.move(1*magCurr)
         self.execMacro('regscan delay 1 -830 -825 5 -824.5 5 -823.8 35 -822 18 -820 10 -800 20 1000 18')
         
-    self.execMacro('pumpOff')
+    self.execMacro('pumpoff')
     self.execMacro('waittime 1')
     self.execMacro('ascan wp -5 55 60 1')
-    self.execMacro('laserOff')
+    self.execMacro('laseroff')
 
 @macro()    
 def fluenceDelayScan20180525(self):
@@ -41,12 +41,12 @@ def fluenceDelayScan20180525(self):
     self.output("Running fluenceDelayScan20180525...")
 
     wpAngles = np.r_[6,9.65,12.35,14.58,16.69,18.69,20.5,22.4,24.34,26,27.9,29.95,32.25,34.84,38,45]
-    kepco = self.getMotor("kepco")
-    wp = self.getMotor("wp")
+    kepco = self.getMotion("kepco")
+    wp = self.getMotion("wp")
     magCurr = 40    
     
-    self.execMacro('laserOn')
-    self.execMacro('pumpOn')
+    self.execMacro('laseron')
+    self.execMacro('pumpon')
     self.execMacro('waittime 0')
     
     for wpAngle in wpAngles:
@@ -64,11 +64,11 @@ def fluenceDelayScan20180525(self):
         kepco.move(1*magCurr)
         self.execMacro('regscan delay 1 -830 -825 5 -824.5 5 -823.8 35 -822 18 -820 10 -800 20 1000 18')
         
-    self.execMacro('pumpOff')
+    self.execMacro('pumpoff')
     self.execMacro('waittime 1')
     self.execMacro('ascan wp -5 55 60 1')
-    self.execMacro('laserOff')
-    self.execMacro('laserOff')
+    self.execMacro('laseroff')
+    self.execMacro('laseroff')
     
 @macro()    
 def fluenceDelayScan20180606(self):
@@ -77,12 +77,12 @@ def fluenceDelayScan20180606(self):
 
     wpAngles = np.r_[0.004,0.012]
     magCurrents = np.r_[10,20,30,40]
-    kepco = self.getMotor("kepco")
+    kepco = self.getMotion("kepco")
     power = self.getPseudoMotor("power")
     
     
-    self.execMacro('laserOn')
-    self.execMacro('pumpOn')
+    self.execMacro('laseron')
+    self.execMacro('pumpon')
     self.execMacro('waittime 0')
     
     for wpAngle in wpAngles:
@@ -98,8 +98,8 @@ def fluenceDelayScan20180606(self):
             self.execMacro('regscan delay 1 -830 -825 5 -824.5 5 -823.8 35 -822 18 -820 10 -800 20 1000 18')
         
         
-    self.execMacro('pumpOff')
-    self.execMacro('laserOff')
+    self.execMacro('pumpoff')
+    self.execMacro('laseroff')
 
 @macro() 
 def repeatHystereses20180625(self):

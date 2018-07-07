@@ -2,10 +2,20 @@ from sardana.macroserver.macro import imacro, macro, Type
 import PyTango
 import numpy as np
 
+@imacro()
+def acqconf(self):
+    # run all the other configuration
+    pass
+
+@macro()
+def acqrep(self):
+    # return all acqconf values
+    pass
+
 @macro([["time", Type.Float, None, "time in seconds"] ])
 def waittime(self, time):
     """Macro waittime"""
-    acqConf = self.getEnv('acqConf')
+    acqConf             = self.getEnv('acqConf')
     acqConf['waitTime'] = time
     self.setEnv('acqConf', acqConf)
     self.output("waittime set to %.2f s", time)
@@ -13,14 +23,19 @@ def waittime(self, time):
 
 @macro([["ampl", Type.Float, None, "amplitude of mag. field in altOn scans [A]"],
         ["waittime", Type.Float, None, "waittime after magnet switching [s]"]])
-def magnsettings(self, ampl, waittime):
+def magnconf(self, ampl, waittime):
     """Macro magnampl"""
-    magnConf = self.getEnv('magnConf')
-    magnConf['ampl'] = ampl
+    magnConf             = self.getEnv('magnConf')
+    magnConf['ampl']     = ampl
     magnConf['waitTime'] = waittime
     self.setEnv('magnConf', magnConf)
     self.output("magnampl set to %.2f A", ampl)    
     self.output("magnwaittime set to %.2f s", waittime)
+
+@macro()
+def magnrep(self):
+    # return all magnconf values
+    pass
 
 @imacro()
 def fluenceconf(self):
@@ -34,9 +49,7 @@ def fluenceconf(self):
         lastPumpHor = 100
         lastPumpVer = 100
         lastRefl    = 0
-        lastRepRate = 3000
-        
-    
+        lastRepRate = 3000  
     
     label, unit = "hor", "um"
     pumpHor = self.input("What is the horizontal beam diameter (FWHM)?", data_type=Type.Float,
@@ -67,24 +80,27 @@ def fluenceconf(self):
     self.output("repRate: %.2f Hz", repRate)
     
     power = self.getPseudoMotor("power")
-    fluence = self.getPseudoMotor("fluence")
-    minPower, maxPower = power.getPositionObj().getLimits()
+    minPower, maxPower = power.po
     
     trans   = 1-(refl/100)
     minFluence = minPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
     maxFluence = maxPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
     
     self.output('Setting fluence limits using current power limits:')
-    fluence.getPositionObj().setLimits(minFluence,maxFluence)
+    self.execMacro('set_lim', 'fluence', minFluence, maxFluence)
     self.output("minimum fluence %.3f mJ/cm^2", minFluence)
     self.output("maximum fluence %.3f mJ/cm^2", maxFluence)  
-    
+
+@macro()
+def fluencerep(self):
+    # return all fluenceconf values
+    pass    
 
 @macro([["P0", Type.Float, None, "P0"],
         ["Pm", Type.Float, None, "Pm"],
         ["offset", Type.Float, None, "offset"],
         ["period", Type.Float, None, "period"]])
-def setPowerParameter(self, P0, Pm, offset, period):
+def powerconf(self, P0, Pm, offset, period):
     """This sets the parameters of the power pseudo motor"""
     
     power = PyTango.DeviceProxy("pm/powerctrl/1")
@@ -94,4 +110,7 @@ def setPowerParameter(self, P0, Pm, offset, period):
     power.P0     = P0
     power.Pm     = Pm
 
-   
+@macro()
+def powerrep(self):
+    # return all powerconf values
+    pass

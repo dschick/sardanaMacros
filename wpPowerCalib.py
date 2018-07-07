@@ -13,7 +13,8 @@ from sardana.macroserver.scan import *
 def wpCalibScan(self):
     """This runs a waveplate calibration scan"""
 
-    acqConf = self.getEnv('acqConf')
+    acqConf     = self.getEnv('acqConf')
+    altOn       = acqConf['altOn']
     oldWaitTime = acqConf['waitTime']
     newWaitTime = 1
     
@@ -21,8 +22,8 @@ def wpCalibScan(self):
     motor   = 'wp'
     
     self.execMacro('waittime', newWaitTime)
-    self.execMacro('altOff')
-    self.execMacro('pumpOff')   
+    self.execMacro('altoff')
+    self.execMacro('pumpoff')   
         
     scan, _ = self.createMacro('ascan', 'wp', '-5', '55', '60', '1')
     # createMacro returns a tuple composed from a macro object
@@ -31,6 +32,10 @@ def wpCalibScan(self):
     self.runMacro(scan)    
     
     self.execMacro('waittime', oldWaitTime)
+    
+    # in case alternate was on before switch it on again
+    if altOn:
+        self.execMacro('alton')
         
     data = scan.data
         
@@ -61,7 +66,7 @@ def wpCalibScan(self):
     self.pyplot.legend()
     
     self.execMacro('set_lim', 'power', out.best_values['P0'], out.best_values['Pm'])
-    self.execMacro('setPowerParameter', out.best_values['P0'], out.best_values['Pm'], out.best_values['offset'], out.best_values['period'])
+    self.execMacro('powerconf', out.best_values['P0'], out.best_values['Pm'], out.best_values['offset'], out.best_values['period'])
     
     
 def sinSqrd(x,Pm,P0,offset,period):
