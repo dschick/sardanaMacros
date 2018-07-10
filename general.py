@@ -80,6 +80,7 @@ def fluenceconf(self):
     self.output("repRate: %.2f Hz", repRate)
     
     power = self.getPseudoMotor("power")
+    fluence = self.getPseudoMotor("fluence")
     minPower, maxPower = power.getPositionObj().getLimits()
     
     trans   = 1-(refl/100)
@@ -87,7 +88,7 @@ def fluenceconf(self):
     maxFluence = maxPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
     
     self.output('Setting fluence limits using current power limits:')
-    self.execMacro('set_lim', 'fluence', minFluence, maxFluence)
+    fluence.getPositionObj().setLimits(minFluence, maxFluence)
     self.output("minimum fluence %.3f mJ/cm^2", minFluence)
     self.output("maximum fluence %.3f mJ/cm^2", maxFluence)  
 

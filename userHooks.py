@@ -24,7 +24,7 @@ def userPreAcq(self):
         magnConf    = self.getEnv('magnConf')
         ampl        = magnConf['ampl']
         magwaittime = magnConf['waitTime']
-        kepco       = self.getMotion("kepco")
+        kepco       = self.getMotor("kepco")
         
         kepco.move(-1*ampl)
         
