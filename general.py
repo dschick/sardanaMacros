@@ -80,7 +80,7 @@ def fluenceconf(self):
     self.output("repRate: %.2f Hz", repRate)
     
     power = self.getPseudoMotor("power")
-    minPower, maxPower = power.po
+    minPower, maxPower = power.getPositionObj().getLimits()
     
     trans   = 1-(refl/100)
     minFluence = minPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
