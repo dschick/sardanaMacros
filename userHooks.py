@@ -24,9 +24,9 @@ def userPreAcq(self):
         magnConf    = self.getEnv('magnConf')
         ampl        = magnConf['ampl']
         magwaittime = magnConf['waitTime']
-        kepco       = self.getMotor("kepco")
+        magnet      = self.getMotor("magnet")
         
-        kepco.move(-1*ampl)
+        magnet.move(-1*ampl)
         
         self.debug('mag. waiting for %.2f s', magwaittime)
         time.sleep(magwaittime)        
@@ -37,7 +37,7 @@ def userPreAcq(self):
             mnt_grp     = self.getObj(self.getEnv('ActiveMntGrp'), type_class=Type.MeasurementGroup)
             state, data = mnt_grp.count(integ_time)
                        
-        kepco.move(+1*ampl)
+        magnet.move(+1*ampl)
         
         self.debug('mag. waiting for %.2f s', magwaittime)
         time.sleep(magwaittime)                
