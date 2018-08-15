@@ -1,4 +1,4 @@
-from sardana.macroserver.macro import imacro, macro, Type
+from sardana.macroserver.macro import imacro, macro, Type, OptionalParam
 import PyTango
 import numpy as np
 
@@ -21,11 +21,25 @@ def waittime(self, time):
     self.output("waittime set to %.2f s", time)
     
 
-@macro([["ampl", Type.Float, None, "amplitude of mag. field in altOn scans [A]"],
-        ["waittime", Type.Float, None, "waittime after magnet switching [s]"]])
+@imacro([["ampl", Type.Float, OptionalParam, "amplitude of mag. field in altOn scans [A]"],
+        ["waittime", Type.Float, OptionalParam, "waittime after magnet switching [s]"]])
 def magnconf(self, ampl, waittime):
     """Macro magnampl"""
-    magnConf             = self.getEnv('magnConf')
+    magnConf = self.getEnv('magnConf')    
+    
+    if ampl is OptionalParam:
+        label, unit = "Amplitude", "A"
+        ampl = self.input("What is magnet amplitude?", data_type=Type.Float,
+                          title="Magnet Amplitude", key=label, unit=unit,
+                          default_value=magnConf['ampl'], minimum=0.0, maximum=10)
+    
+    if waittime is OptionalParam:
+        label, unit = "Waittime", "s"
+        waittime = self.input("What is magnet waittime?", data_type=Type.Float,
+                          title="Magnet Waittime", key=label, unit=unit,
+                          default_value=magnConf['waitTime'], minimum=0.0, maximum=100)
+    
+    
     magnConf['ampl']     = ampl
     magnConf['waitTime'] = waittime
     self.setEnv('magnConf', magnConf)
