@@ -5,17 +5,31 @@ import numpy as np
 @imacro()
 def acqconf(self):
     # run all the other configuration
-    pass
+    self.execMacro('waittime')
+    self.execMacro('magnconf')
+    self.execMacro('powerconf')    
+    self.execMacro('fluenceconf')
+    
+    self.execMacro('acqrep')
 
 @macro()
 def acqrep(self):
-    # return all acqconf values
-    pass
+    acqConf = self.getEnv('acqConf')
+    self.output('Gen. Waittime   : %.2f s', acqConf['waitTime'])
+    self.execMacro('magnrep')
+    self.execMacro('powerrep')
+    self.execMacro('fluencerep')
 
-@macro([["time", Type.Float, None, "time in seconds"] ])
+@imacro([["time", Type.Float, OptionalParam, "time in seconds"] ])
 def waittime(self, time):
     """Macro waittime"""
-    acqConf             = self.getEnv('acqConf')
+    acqConf = self.getEnv('acqConf')
+    if time is OptionalParam:
+        label, unit = "Waittime", "s"
+        time = self.input("Wait time before every acqisition?", data_type=Type.Float,
+                          title="Waittime Amplitude", key=label, unit=unit,
+                          default_value=acqConf['waitTime'], minimum=0.0, maximum=100)
+    
     acqConf['waitTime'] = time
     self.setEnv('acqConf', acqConf)
     self.output("waittime set to %.2f s", time)
@@ -29,13 +43,13 @@ def magnconf(self, ampl, waittime):
     
     if ampl is OptionalParam:
         label, unit = "Amplitude", "A"
-        ampl = self.input("What is magnet amplitude?", data_type=Type.Float,
+        ampl = self.input("Set magnet amplitude:", data_type=Type.Float,
                           title="Magnet Amplitude", key=label, unit=unit,
                           default_value=magnConf['ampl'], minimum=0.0, maximum=10)
     
     if waittime is OptionalParam:
         label, unit = "Waittime", "s"
-        waittime = self.input("What is magnet waittime?", data_type=Type.Float,
+        waittime = self.input("Set magnet waittime:", data_type=Type.Float,
                           title="Magnet Waittime", key=label, unit=unit,
                           default_value=magnConf['waitTime'], minimum=0.0, maximum=100)
     
@@ -43,16 +57,21 @@ def magnconf(self, ampl, waittime):
     magnConf['ampl']     = ampl
     magnConf['waitTime'] = waittime
     self.setEnv('magnConf', magnConf)
-    self.output("magnampl set to %.2f A", ampl)    
-    self.output("magnwaittime set to %.2f s", waittime)
+    self.execMacro('magnrep')
 
 @macro()
 def magnrep(self):
     # return all magnconf values
-    pass
+    magnConf = self.getEnv('magnConf')
+    self.output('Magnet Settings : magn. amplitude = %.2f | A magn. waittime = %.2f s', magnConf['ampl'], magnConf['waitTime'])
+#    self.output('magn. amplitude: %.2f A', magnConf['ampl'])    
+#    self.output('magn. waittime : %.2f s', magnConf['waitTime'] )
 
-@imacro()
-def fluenceconf(self):
+@imacro([["pumpHor", Type.Float, OptionalParam, "pumpHor"],
+        ["pumpVer", Type.Float, OptionalParam, "pumpVer"],
+        ["refl", Type.Float, OptionalParam, "reflectivity"],
+        ["repRate", Type.Float, OptionalParam, "repetition rate"]])
+def fluenceconf(self, pumpHor, pumpVer, refl, repRate):
     fluencePM = PyTango.DeviceProxy("pm/fluencectrl/1")
     try:
         lastPumpHor = fluencePM.pumpHor
@@ -65,34 +84,32 @@ def fluenceconf(self):
         lastRefl    = 0
         lastRepRate = 3000  
     
-    label, unit = "hor", "um"
-    pumpHor = self.input("What is the horizontal beam diameter (FWHM)?", data_type=Type.Float,
-                      title="Horizontal beam diameter", key=label, unit=unit,
-                      default_value=lastPumpHor, minimum=0.0, maximum=100000)
-    label, unit = "ver", "um"
-    pumpVer = self.input("What is the vertical beam diameter (FWHM)?", data_type=Type.Float,
-                      title="Vertical beam diameter", key=label, unit=unit,
-                      default_value=lastPumpVer, minimum=0.0, maximum=100000)
-    label, unit = "refl", "%"
-    refl = self.input("What is the sample reflectivity?", data_type=Type.Float,
-                      title="Sample reflectivity", key=label, unit=unit,
-                      default_value=lastRefl, minimum=0.0, maximum=100)
-    label, unit = "repRate", "Hz"
-    repRate = self.input("What is the laser repetition rate?", data_type=Type.Float,
-                      title="Laser repetition rate", key=label, unit=unit,
-                      default_value=lastRepRate, minimum=0.0, maximum=10000)
+    if pumpHor is OptionalParam:    
+        label, unit = "hor", "um"
+        pumpHor = self.input("Set the horizontal beam diameter (FWHM):", data_type=Type.Float,
+                          title="Horizontal beam diameter", key=label, unit=unit,
+                          default_value=lastPumpHor, minimum=0.0, maximum=100000)
+    if pumpVer is OptionalParam: 
+        label, unit = "ver", "um"
+        pumpVer = self.input("Set the vertical beam diameter (FWHM):", data_type=Type.Float,
+                             title="Vertical beam diameter", key=label, unit=unit,
+                             default_value=lastPumpVer, minimum=0.0, maximum=100000)
+    if refl is OptionalParam:
+        label, unit = "refl", "%"
+        refl = self.input("Set the sample reflectivity:", data_type=Type.Float,
+                          title="Sample reflectivity", key=label, unit=unit,
+                          default_value=lastRefl, minimum=0.0, maximum=100)
+    if repRate is OptionalParam:       
+        label, unit = "repRate", "Hz"
+        repRate = self.input("Set the laser repetition rate:", data_type=Type.Float,
+                          title="Laser repetition rate", key=label, unit=unit,
+                          default_value=lastRepRate, minimum=0.0, maximum=10000)
         
     fluencePM.pumpHor = pumpHor
     fluencePM.pumpVer = pumpVer
     fluencePM.refl    = refl
     fluencePM.repRate = repRate
-    
-    self.output("Settings:")
-    self.output("pumpHor: %.2f um", pumpHor)
-    self.output("pumpVer: %.2f um", pumpVer)
-    self.output("refl   : %.2f %%", refl)
-    self.output("repRate: %.2f Hz", repRate)
-    
+        
     power = self.getPseudoMotor("power")
     fluence = self.getPseudoMotor("fluence")
     minPower, maxPower = power.getPositionObj().getLimits()
@@ -100,32 +117,88 @@ def fluenceconf(self):
     trans   = 1-(refl/100)
     minFluence = minPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
     maxFluence = maxPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
-    
-    self.output('Setting fluence limits using current power limits:')
+    self.info('Update limits of pseudo motor fluence')
     fluence.getPositionObj().setLimits(minFluence, maxFluence)
-    self.output("minimum fluence %.3f mJ/cm^2", minFluence)
-    self.output("maximum fluence %.3f mJ/cm^2", maxFluence)  
+    
+    self.execMacro('fluencerep')
+
 
 @macro()
 def fluencerep(self):
-    # return all fluenceconf values
-    pass    
+    fluencePM = PyTango.DeviceProxy("pm/fluencectrl/1")
+    
+    pumpHor = fluencePM.pumpHor
+    pumpVer = fluencePM.pumpVer
+    refl    = fluencePM.refl
+    repRate = fluencePM.repRate
+    
+    self.output('Fluence Settings: pumpHor = %.2f um | pumpVer = %.2f um |'
+                'refl = %.2f %% | repRate = %.2f Hz', 
+                pumpHor, pumpVer, refl, repRate)
+#    self.output("pumpHor: %.2f um", pumpHor)
+#    self.output("pumpVer: %.2f um", pumpVer)
+#    self.output("refl   : %.2f %%", refl)
+#    self.output("repRate: %.2f Hz", repRate)
+    
+    fluence = self.getPseudoMotor("fluence")
+    [minFluence, maxFluence] = fluence.getPositionObj().getLimits()
+    
+    self.output('Fluence Limits  : min = %.3f mJ/cm^2 | max = %.3f mJ/cm^2', 
+                minFluence, maxFluence)
+#    self.output("minimum fluence %.3f mJ/cm^2", minFluence)
+#    self.output("maximum fluence %.3f mJ/cm^2", maxFluence)  
+        
 
-@macro([["P0", Type.Float, None, "P0"],
-        ["Pm", Type.Float, None, "Pm"],
-        ["offset", Type.Float, None, "offset"],
-        ["period", Type.Float, None, "period"]])
+@imacro([["P0", Type.Float, OptionalParam, "P0"],
+        ["Pm", Type.Float, OptionalParam, "Pm"],
+        ["offset", Type.Float, OptionalParam, "offset"],
+        ["period", Type.Float, OptionalParam, "period"]])
 def powerconf(self, P0, Pm, offset, period):
     """This sets the parameters of the power pseudo motor"""
-    
     power = PyTango.DeviceProxy("pm/powerctrl/1")
+    
+    if P0 is OptionalParam:    
+        label, unit = "P0", "W"
+        P0 = self.input("Set the minimum power:", data_type=Type.Float,
+                          title="Minimum Power", key=label, unit=unit,
+                          default_value=power.P0, minimum=0.0, maximum=100000)
+    
+    if Pm is OptionalParam:    
+        label, unit = "Pm", "W"
+        Pm = self.input("Set the maximum power:", data_type=Type.Float,
+                          title="Maximum Power", key=label, unit=unit,
+                          default_value=power.Pm, minimum=0.0, maximum=100000)
+    
+    if offset is OptionalParam:    
+        label, unit = "offset", "deg"
+        offset = self.input("Set the radial offset:", data_type=Type.Float,
+                          title="Radial Offset", key=label, unit=unit,
+                          default_value=power.offset, minimum=-45, maximum=45)
+        
+    if period is OptionalParam:    
+        label, unit = "period", ""
+        period = self.input("Set the radial period:", data_type=Type.Float,
+                          title="Radial Period", key=label, unit=unit,
+                          default_value=power.period, minimum=0, maximum=2)
+    
+    
     self.info('Update parameters of pseudo motor power')
     power.offset = offset
     power.period = period
     power.P0     = P0
     power.Pm     = Pm
+    
+    self.execMacro('set_lim', 'power', P0, (Pm+P0))    
+    self.execMacro('powerrep')
 
 @macro()
 def powerrep(self):
     # return all powerconf values
-    pass
+    power = PyTango.DeviceProxy("pm/powerctrl/1")
+    self.output('Power Settings  : P0 = %.4f W | Pm = %.4f W |'
+                'offset = %.2f deg | period = %.2f', 
+                power.P0, power.Pm, power.offset, power.period)
+#    self.output("P0    : %.4f W", power.P0)
+#    self.output("Pm    : %.4f W", power.Pm)
+#    self.output("offset: %.2f deg", power.offset)
+#    self.output("period: %.2f", power.period)
