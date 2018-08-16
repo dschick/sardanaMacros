@@ -37,17 +37,23 @@ def waittime(self, time):
     acqConf = self.getEnv('acqConf')
     if time is OptionalParam:
         label, unit = "Waittime", "s"
-        time = self.input("Wait time before every acqisition?", data_type=Type.Float,
+        time = self.input("Wait time before every acqisition?", 
+                          data_type=Type.Float,
                           title="Waittime Amplitude", key=label, unit=unit,
-                          default_value=acqConf['waitTime'], minimum=0.0, maximum=100)
+                          default_value=acqConf['waitTime'], minimum=0.0, 
+                          maximum=100)
     
     acqConf['waitTime'] = time
     self.setEnv('acqConf', acqConf)
     self.output("waittime set to %.2f s", time)
     
 
-@imacro([["ampl", Type.Float, OptionalParam, "amplitude of mag. field in altOn scans [A]"],
-        ["waittime", Type.Float, OptionalParam, "waittime after magnet switching [s]"]])
+@imacro([
+        ["ampl", Type.Float, OptionalParam, 
+          "amplitude of mag. field in altOn scans [A]"],
+        ["waittime", Type.Float, OptionalParam, 
+         "waittime after magnet switching [s]"]
+        ])
 def magnconf(self, ampl, waittime):
     """Macro magnampl"""
     magnConf = self.getEnv('magnConf')    
@@ -56,13 +62,15 @@ def magnconf(self, ampl, waittime):
         label, unit = "Amplitude", "A"
         ampl = self.input("Set magnet amplitude:", data_type=Type.Float,
                           title="Magnet Amplitude", key=label, unit=unit,
-                          default_value=magnConf['ampl'], minimum=0.0, maximum=10)
+                          default_value=magnConf['ampl'], minimum=0.0, 
+                          maximum=10)
     
     if waittime is OptionalParam:
         label, unit = "Waittime", "s"
         waittime = self.input("Set magnet waittime:", data_type=Type.Float,
                           title="Magnet Waittime", key=label, unit=unit,
-                          default_value=magnConf['waitTime'], minimum=0.0, maximum=100)
+                          default_value=magnConf['waitTime'], minimum=0.0, 
+                          maximum=100)
     
     
     magnConf['ampl']     = ampl
@@ -74,9 +82,9 @@ def magnconf(self, ampl, waittime):
 def magnrep(self):
     # return all magnconf values
     magnConf = self.getEnv('magnConf')
-    self.output('Magnet Settings : magn. amplitude = %.2f | A magn. waittime = %.2f s', magnConf['ampl'], magnConf['waitTime'])
-#    self.output('magn. amplitude: %.2f A', magnConf['ampl'])    
-#    self.output('magn. waittime : %.2f s', magnConf['waitTime'] )
+    self.output('Magnet Settings : magn. amplitude = %.2f |'
+                'A magn. waittime = %.2f s', 
+                magnConf['ampl'], magnConf['waitTime'])
 
 @imacro([["pumpHor", Type.Float, OptionalParam, "pumpHor"],
         ["pumpVer", Type.Float, OptionalParam, "pumpVer"],
@@ -97,14 +105,18 @@ def fluenceconf(self, pumpHor, pumpVer, refl, repRate):
     
     if pumpHor is OptionalParam:    
         label, unit = "hor", "um"
-        pumpHor = self.input("Set the horizontal beam diameter (FWHM):", data_type=Type.Float,
-                          title="Horizontal beam diameter", key=label, unit=unit,
-                          default_value=lastPumpHor, minimum=0.0, maximum=100000)
+        pumpHor = self.input("Set the horizontal beam diameter (FWHM):", 
+                             data_type=Type.Float,
+                             title="Horizontal beam diameter", key=label, 
+                             unit=unit, default_value=lastPumpHor, minimum=0.0,
+                             maximum=100000)
     if pumpVer is OptionalParam: 
         label, unit = "ver", "um"
-        pumpVer = self.input("Set the vertical beam diameter (FWHM):", data_type=Type.Float,
-                             title="Vertical beam diameter", key=label, unit=unit,
-                             default_value=lastPumpVer, minimum=0.0, maximum=100000)
+        pumpVer = self.input("Set the vertical beam diameter (FWHM):", 
+                             data_type=Type.Float, 
+                             title="Vertical beam diameter", key=label,
+                             unit=unit, default_value=lastPumpVer, minimum=0.0,
+                             maximum=100000)
     if refl is OptionalParam:
         label, unit = "refl", "%"
         refl = self.input("Set the sample reflectivity:", data_type=Type.Float,
@@ -112,9 +124,11 @@ def fluenceconf(self, pumpHor, pumpVer, refl, repRate):
                           default_value=lastRefl, minimum=0.0, maximum=100)
     if repRate is OptionalParam:       
         label, unit = "repRate", "Hz"
-        repRate = self.input("Set the laser repetition rate:", data_type=Type.Float,
-                          title="Laser repetition rate", key=label, unit=unit,
-                          default_value=lastRepRate, minimum=0.0, maximum=10000)
+        repRate = self.input("Set the laser repetition rate:", 
+                             data_type=Type.Float,
+                             title="Laser repetition rate", key=label, 
+                             unit=unit, default_value=lastRepRate, minimum=0.0,
+                             maximum=10000)
         
     fluencePM.pumpHor = pumpHor
     fluencePM.pumpVer = pumpVer
@@ -126,8 +140,10 @@ def fluenceconf(self, pumpHor, pumpVer, refl, repRate):
     minPower, maxPower = power.getPositionObj().getLimits()
     
     trans   = 1-(refl/100)
-    minFluence = minPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
-    maxFluence = maxPower*trans/(repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
+    minFluence = minPower*trans/(
+                    repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
+    maxFluence = maxPower*trans/(
+                    repRate/1000*np.pi*pumpHor/10000/2*pumpVer/10000/2)
     self.info('Update limits of pseudo motor fluence')
     fluence.getPositionObj().setLimits(minFluence, maxFluence)
     
@@ -146,18 +162,12 @@ def fluencerep(self):
     self.output('Fluence Settings: pumpHor = %.2f um | pumpVer = %.2f um |'
                 'refl = %.2f %% | repRate = %.2f Hz', 
                 pumpHor, pumpVer, refl, repRate)
-#    self.output("pumpHor: %.2f um", pumpHor)
-#    self.output("pumpVer: %.2f um", pumpVer)
-#    self.output("refl   : %.2f %%", refl)
-#    self.output("repRate: %.2f Hz", repRate)
     
     fluence = self.getPseudoMotor("fluence")
     [minFluence, maxFluence] = fluence.getPositionObj().getLimits()
     
     self.output('Fluence Limits  : min = %.3f mJ/cm^2 | max = %.3f mJ/cm^2', 
                 minFluence, maxFluence)
-#    self.output("minimum fluence %.3f mJ/cm^2", minFluence)
-#    self.output("maximum fluence %.3f mJ/cm^2", maxFluence)  
         
 
 @imacro([["P0", Type.Float, OptionalParam, "P0"],
@@ -209,7 +219,4 @@ def powerrep(self):
     self.output('Power Settings  : P0 = %.4f W | Pm = %.4f W |'
                 'offset = %.2f deg | period = %.2f', 
                 power.P0, power.Pm, power.offset, power.period)
-#    self.output("P0    : %.4f W", power.P0)
-#    self.output("Pm    : %.4f W", power.Pm)
-#    self.output("offset: %.2f deg", power.offset)
-#    self.output("period: %.2f", power.period)
+    
