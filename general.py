@@ -5,17 +5,28 @@ import numpy as np
 @imacro()
 def acqconf(self):
     # run all the other configuration
+    acqConf = self.getEnv('acqConf')
+    label, unit = "Alternate On/Off", ""
+    alt_on = self.input("Alternate Mode On/Off?", data_type=Type.Boolean,
+                      title="Alternate Mode", key=label, unit=unit,
+                      default_value=acqConf['altOn'], minimum=0.0, maximum=100)
+    
+    acqConf['altOn'] = alt_on
+    self.setEnv('acqConf', acqConf)
+    
     self.execMacro('waittime')
     self.execMacro('magnconf')
     self.execMacro('powerconf')    
     self.execMacro('fluenceconf')
-    
+    self.output('\r')
     self.execMacro('acqrep')
 
 @macro()
 def acqrep(self):
     acqConf = self.getEnv('acqConf')
-    self.output('Gen. Waittime   : %.2f s', acqConf['waitTime'])
+    self.output('Gen. Settings   : %s | Waittime = %.2f s', 
+                ('Alt ON' if acqConf['altOn'] else 'Alt OFF'),
+                acqConf['waitTime'])
     self.execMacro('magnrep')
     self.execMacro('powerrep')
     self.execMacro('fluencerep')
