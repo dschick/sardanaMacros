@@ -2,7 +2,7 @@ __all__ = ["wpCalibScan", "setPowerParameter"]
 
 __docformat__ = 'restructuredtext'
 
-import numpy
+import numpy as np
 import lmfit
 import PyTango
 
@@ -60,14 +60,13 @@ def wpCalibScan(self):
     
     self.pyplot.plot(wp, pm, 'o', label='data') #
     self.pyplot.plot(wp, out.best_fit, label='fit')
-    self.pyplot.title(r'Fit data by $P(wp) = P_m*(sin((wp-offset)*2/180*\pi*period)^2+P_0)$')
+    self.pyplot.title(r'Fit data by $P(wp) = P_m*(sin((wp-offset)*2/180*\pi*period)^2)+P_0$')
     self.pyplot.xlabel('wp angle [deg.]')
     self.pyplot.xlabel('laser power [W]')
     self.pyplot.legend()
     
-    self.execMacro('set_lim', 'power', out.best_values['P0'], out.best_values['Pm'])
     self.execMacro('powerconf', out.best_values['P0'], out.best_values['Pm'], out.best_values['offset'], out.best_values['period'])
     
     
 def sinSqrd(x,Pm,P0,offset,period):
-    return Pm*(numpy.sin((x-offset)*2/180.*numpy.pi*period)**2) + P0    
+    return Pm*(np.sin(np.radians(x-offset)*2*period)**2) + P0
