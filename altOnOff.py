@@ -11,7 +11,7 @@ def alton(self):
     # enable minus field counters
     mnt_grp = self.getObj(self.getEnv('ActiveMntGrp'), type_class=Type.MeasurementGroup)
     mnt_grp.enableChannels(['PumpedM', 'UnpumpedM', 'RelM', 'PumpedErrM', 
-                             'UnpumpedErrM', 'numTriggersM', 'durationM'])
+                             'UnpumpedErrM', 'numTriggersM', 'durationM', 'DiffM'])
 
 @macro()    
 def altoff(self):
@@ -24,4 +24,4 @@ def altoff(self):
     # disable minus field counters
     mnt_grp = self.getObj(self.getEnv('ActiveMntGrp'), type_class=Type.MeasurementGroup)
     mnt_grp.disableChannels(['PumpedM', 'UnpumpedM', 'RelM', 'PumpedErrM', 
-                             'UnpumpedErrM', 'numTriggersM', 'durationM'])
+                             'UnpumpedErrM', 'numTriggersM', 'durationM', 'DiffM'])
