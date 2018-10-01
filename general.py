@@ -1,4 +1,4 @@
-from sardana.macroserver.macro import imacro, macro, Type, OptionalParam
+from sardana.macroserver.macro import imacro, macro, Type, Optional
 import PyTango
 import numpy as np
 
@@ -31,11 +31,11 @@ def acqrep(self):
     self.execMacro('powerrep')
     self.execMacro('fluencerep')
 
-@imacro([["time", Type.Float, OptionalParam, "time in seconds"] ])
+@imacro([["time", Type.Float, Optional, "time in seconds"] ])
 def waittime(self, time):
     """Macro waittime"""
     acqConf = self.getEnv('acqConf')
-    if time is OptionalParam:
+    if time is Optional:
         label, unit = "Waittime", "s"
         time = self.input("Wait time before every acqisition?", 
                           data_type=Type.Float,
@@ -49,23 +49,23 @@ def waittime(self, time):
     
 
 @imacro([
-        ["ampl", Type.Float, OptionalParam, 
+        ["ampl", Type.Float, Optional, 
           "amplitude of mag. field in altOn scans [A]"],
-        ["waittime", Type.Float, OptionalParam, 
+        ["waittime", Type.Float, Optional, 
          "waittime after magnet switching [s]"]
         ])
 def magnconf(self, ampl, waittime):
     """Macro magnampl"""
     magnConf = self.getEnv('magnConf')    
     
-    if ampl is OptionalParam:
+    if ampl is Optional:
         label, unit = "Amplitude", "A"
         ampl = self.input("Set magnet amplitude:", data_type=Type.Float,
                           title="Magnet Amplitude", key=label, unit=unit,
                           default_value=magnConf['ampl'], minimum=0.0, 
                           maximum=10)
     
-    if waittime is OptionalParam:
+    if waittime is Optional:
         label, unit = "Waittime", "s"
         waittime = self.input("Set magnet waittime:", data_type=Type.Float,
                           title="Magnet Waittime", key=label, unit=unit,
@@ -86,10 +86,10 @@ def magnrep(self):
                 'A magn. waittime = %.2f s', 
                 magnConf['ampl'], magnConf['waitTime'])
 
-@imacro([["pumpHor", Type.Float, OptionalParam, "pumpHor"],
-        ["pumpVer", Type.Float, OptionalParam, "pumpVer"],
-        ["refl", Type.Float, OptionalParam, "reflectivity"],
-        ["repRate", Type.Float, OptionalParam, "repetition rate"]])
+@imacro([["pumpHor", Type.Float, Optional, "pumpHor"],
+        ["pumpVer", Type.Float, Optional, "pumpVer"],
+        ["refl", Type.Float, Optional, "reflectivity"],
+        ["repRate", Type.Float, Optional, "repetition rate"]])
 def fluenceconf(self, pumpHor, pumpVer, refl, repRate):
     fluencePM = PyTango.DeviceProxy("pm/fluencectrl/1")
     try:
@@ -103,26 +103,26 @@ def fluenceconf(self, pumpHor, pumpVer, refl, repRate):
         lastRefl    = 0
         lastRepRate = 3000  
     
-    if pumpHor is OptionalParam:    
+    if pumpHor is Optional:    
         label, unit = "hor", "um"
         pumpHor = self.input("Set the horizontal beam diameter (FWHM):", 
                              data_type=Type.Float,
                              title="Horizontal beam diameter", key=label, 
                              unit=unit, default_value=lastPumpHor, minimum=0.0,
                              maximum=100000)
-    if pumpVer is OptionalParam: 
+    if pumpVer is Optional: 
         label, unit = "ver", "um"
         pumpVer = self.input("Set the vertical beam diameter (FWHM):", 
                              data_type=Type.Float, 
                              title="Vertical beam diameter", key=label,
                              unit=unit, default_value=lastPumpVer, minimum=0.0,
                              maximum=100000)
-    if refl is OptionalParam:
+    if refl is Optional:
         label, unit = "refl", "%"
         refl = self.input("Set the sample reflectivity:", data_type=Type.Float,
                           title="Sample reflectivity", key=label, unit=unit,
                           default_value=lastRefl, minimum=0.0, maximum=100)
-    if repRate is OptionalParam:       
+    if repRate is Optional:       
         label, unit = "repRate", "Hz"
         repRate = self.input("Set the laser repetition rate:", 
                              data_type=Type.Float,
@@ -170,33 +170,33 @@ def fluencerep(self):
                 minFluence, maxFluence)
         
 
-@imacro([["P0", Type.Float, OptionalParam, "P0"],
-        ["Pm", Type.Float, OptionalParam, "Pm"],
-        ["offset", Type.Float, OptionalParam, "offset"],
-        ["period", Type.Float, OptionalParam, "period"]])
+@imacro([["P0", Type.Float, Optional, "P0"],
+        ["Pm", Type.Float, Optional, "Pm"],
+        ["offset", Type.Float, Optional, "offset"],
+        ["period", Type.Float, Optional, "period"]])
 def powerconf(self, P0, Pm, offset, period):
     """This sets the parameters of the power pseudo motor"""
     power = PyTango.DeviceProxy("pm/powerctrl/1")
     
-    if P0 is OptionalParam:    
+    if P0 is Optional:    
         label, unit = "P0", "W"
         P0 = self.input("Set the minimum power:", data_type=Type.Float,
                           title="Minimum Power", key=label, unit=unit,
                           default_value=power.P0, minimum=0.0, maximum=100000)
     
-    if Pm is OptionalParam:    
+    if Pm is Optional:    
         label, unit = "Pm", "W"
         Pm = self.input("Set the maximum power:", data_type=Type.Float,
                           title="Maximum Power", key=label, unit=unit,
                           default_value=power.Pm, minimum=0.0, maximum=100000)
     
-    if offset is OptionalParam:    
+    if offset is Optional:    
         label, unit = "offset", "deg"
         offset = self.input("Set the radial offset:", data_type=Type.Float,
                           title="Radial Offset", key=label, unit=unit,
                           default_value=power.offset, minimum=-45, maximum=45)
         
-    if period is OptionalParam:    
+    if period is Optional:    
         label, unit = "period", ""
         period = self.input("Set the radial period:", data_type=Type.Float,
                           title="Radial Period", key=label, unit=unit,
