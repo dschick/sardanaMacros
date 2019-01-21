@@ -6,7 +6,7 @@ from sardana.macroserver.macro import macro
 @macro()
 def laseron(self):
     """Macro laserOn"""
-    pvPrefix = 'SHUTTER:NOPA:'
+    pvPrefix = 'SHUTTER:PM:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
     if shutterState == "Open":
         self.output("Laser shutter already open")
@@ -22,7 +22,7 @@ def laseron(self):
 @macro()
 def laseroff(self):
     """Macro laserOn"""
-    pvPrefix = 'SHUTTER:NOPA:'
+    pvPrefix = 'SHUTTER:PM:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
     if shutterState == "Closed":
         self.output("Laser shutter already closed")
@@ -38,7 +38,7 @@ def laseroff(self):
 @macro()
 def pumpon(self):
     """Macro laserOn"""
-    pvPrefix = 'SHUTTER:MOKE:'
+    pvPrefix = 'SHUTTER:HHGPUMP:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
     if shutterState == "Open":
         self.output("Pump shutter already open")
@@ -54,7 +54,7 @@ def pumpon(self):
 @macro()
 def pumpoff(self):
     """Macro laserOn"""
-    pvPrefix = 'SHUTTER:MOKE:'
+    pvPrefix = 'SHUTTER:HHGPUMP:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
     if shutterState == "Closed":
         self.output("Pump shutter already closed")
@@ -66,3 +66,35 @@ def pumpoff(self):
             self.output("Pump shutter closed")
         else:
             self.output("Could not close Pump shutter")
+
+@macro()
+def hhgon(self):
+    """Macro laserOn"""
+    pvPrefix = 'SHUTTER:HHG:'
+    shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
+    if shutterState == "Open":
+        self.output("HHG shutter already open")
+    else:
+        caput(pvPrefix + 'Flip', 3)
+        time.sleep(1)
+        shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
+        if shutterState == "Open":
+            self.output("HHG shutter opened")
+        else:
+            self.output("Could not open HHG shutter")
+
+@macro()
+def hhgoff(self):
+    """Macro laserOn"""
+    pvPrefix = 'SHUTTER:HHG:'
+    shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
+    if shutterState == "Closed":
+        self.output("HHG shutter already closed")
+    else:
+        caput(pvPrefix + 'Flip', 3)
+        time.sleep(1)
+        shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
+        if shutterState == "Closed":
+            self.output("HHG shutter closed")
+        else:
+            self.output("Could not close HHG shutter")

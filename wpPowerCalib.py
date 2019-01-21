@@ -18,7 +18,7 @@ def wpCalibScan(self):
     oldWaitTime = acqConf['waitTime']
     newWaitTime = 1
     
-    counter = 'newportPM'
+    counter = 'thorlabsPM'
     motor   = 'wp'
     
     self.execMacro('waittime', newWaitTime)
