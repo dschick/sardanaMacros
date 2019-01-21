@@ -24,7 +24,7 @@ def userPreAcq(self):
         magnConf    = self.getEnv('magnConf')
         ampl        = magnConf['ampl']
         magwaittime = magnConf['waitTime']
-        magnet      = self.getMotor("magnet")
+        magnet      = self.getMotion(["magnet"])
         
         magnet.move(-1*ampl)
         
