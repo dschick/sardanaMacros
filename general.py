@@ -1,4 +1,4 @@
-from sardana.macroserver.macro import imacro, macro, Type, Optional
+from sardana.macroserver.macro import imacro, macro, Macro, Type, Optional, ParamRepeat
 import PyTango
 import numpy as np
 
@@ -58,14 +58,14 @@ def magnconf(self, ampl, waittime):
     """Macro magnampl"""
     magnConf = self.getEnv('magnConf')    
     
-    if ampl is Optional:
+    if ampl is None:
         label, unit = "Amplitude", "A"
         ampl = self.input("Set magnet amplitude:", data_type=Type.Float,
                           title="Magnet Amplitude", key=label, unit=unit,
                           default_value=magnConf['ampl'], minimum=0.0, 
                           maximum=10)
     
-    if waittime is Optional:
+    if waittime is None:
         label, unit = "Waittime", "s"
         waittime = self.input("Set magnet waittime:", data_type=Type.Float,
                           title="Magnet Waittime", key=label, unit=unit,
@@ -86,6 +86,16 @@ def magnrep(self):
                 'A magn. waittime = %.2f s', 
                 magnConf['ampl'], magnConf['waitTime'])
 
+@macro()
+def magnon(self):
+    self.execMacro('send2ctrl caenfastpsctrl MON')
+    self.output('Magnet output switched ON')
+
+@macro()
+def magnoff(self):
+    self.execMacro('send2ctrl caenfastpsctrl MOFF')
+    self.output('Magnet output switched OFF')
+
 @imacro([["pumpHor", Type.Float, Optional, "pumpHor"],
         ["pumpVer", Type.Float, Optional, "pumpVer"],
         ["refl", Type.Float, Optional, "reflectivity"],
@@ -103,26 +113,26 @@ def fluenceconf(self, pumpHor, pumpVer, refl, repRate):
         lastRefl    = 0
         lastRepRate = 3000  
     
-    if pumpHor is Optional:    
+    if pumpHor is None:    
         label, unit = "hor", "um"
         pumpHor = self.input("Set the horizontal beam diameter (FWHM):", 
                              data_type=Type.Float,
                              title="Horizontal beam diameter", key=label, 
                              unit=unit, default_value=lastPumpHor, minimum=0.0,
                              maximum=100000)
-    if pumpVer is Optional: 
+    if pumpVer is None: 
         label, unit = "ver", "um"
         pumpVer = self.input("Set the vertical beam diameter (FWHM):", 
                              data_type=Type.Float, 
                              title="Vertical beam diameter", key=label,
                              unit=unit, default_value=lastPumpVer, minimum=0.0,
                              maximum=100000)
-    if refl is Optional:
+    if refl is None:
         label, unit = "refl", "%"
         refl = self.input("Set the sample reflectivity:", data_type=Type.Float,
                           title="Sample reflectivity", key=label, unit=unit,
                           default_value=lastRefl, minimum=0.0, maximum=100)
-    if repRate is Optional:       
+    if repRate is None:       
         label, unit = "repRate", "Hz"
         repRate = self.input("Set the laser repetition rate:", 
                              data_type=Type.Float,
@@ -178,25 +188,25 @@ def powerconf(self, P0, Pm, offset, period):
     """This sets the parameters of the power pseudo motor"""
     power = PyTango.DeviceProxy("pm/powerctrl/1")
     
-    if P0 is Optional:    
+    if P0 is None:    
         label, unit = "P0", "W"
         P0 = self.input("Set the minimum power:", data_type=Type.Float,
                           title="Minimum Power", key=label, unit=unit,
                           default_value=power.P0, minimum=0.0, maximum=100000)
     
-    if Pm is Optional:    
+    if Pm is None:    
         label, unit = "Pm", "W"
         Pm = self.input("Set the maximum power:", data_type=Type.Float,
                           title="Maximum Power", key=label, unit=unit,
                           default_value=power.Pm, minimum=0.0, maximum=100000)
     
-    if offset is Optional:    
+    if offset is None:    
         label, unit = "offset", "deg"
         offset = self.input("Set the radial offset:", data_type=Type.Float,
                           title="Radial Offset", key=label, unit=unit,
                           default_value=power.offset, minimum=-45, maximum=45)
         
-    if period is Optional:    
+    if period is None:    
         label, unit = "period", ""
         period = self.input("Set the radial period:", data_type=Type.Float,
                           title="Radial Period", key=label, unit=unit,
@@ -219,4 +229,43 @@ def powerrep(self):
     self.output('Power Settings  : P0 = %.4f W | Pm = %.4f W |'
                 'offset = %.2f deg | period = %.2f', 
                 power.P0, power.Pm, power.offset, power.period)
-    
+
+class plotselect(Macro):
+    """
+    plotselect counter1 counter2 ... (change plot display of active measurement
+    group)
+    """
+    param_def = [
+          ['plotChs', ParamRepeat(
+                  ['plotChs', Type.String, 'None', ""], min=0), None, ""]
+     ]
+
+    def run(self, plotChs):
+        mntGrp = self.getEnv('ActiveMntGrp')
+        self.mntGrp = self.getObj(mntGrp, type_class=Type.MeasurementGroup)
+        cfg = self.mntGrp.getConfiguration()
+        channels = self.mntGrp.getChannels()
+        channelNames = []
+
+        # Enable Plot only in the channels passed.
+        for channel in channels:
+            if channel['enabled']:
+                channelNames.append(channel['name'])
+                if channel['name'] in plotChs:
+                    # Enable Plot
+                    self.info("Plot channel %s" % channel['name'])
+                    channel['plot_type'] = 1
+                    channel['plot_axes'] = ['<mov>']
+                else:
+                    # Disable Plot
+                    channel['plot_type'] = 0
+                    channel['plot_axes'] = []
+
+        # check if plotChs exists
+        for plotCh in plotChs:
+            if plotCh not in channelNames:
+                self.warning('channel %s is not enabled or does not exist in'
+                             ' the current measurement group' % plotCh)
+
+        # Force set Configuration.
+        self.mntGrp.setConfiguration(cfg.raw_data)
