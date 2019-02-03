@@ -8,6 +8,7 @@ from sardana.macroserver.macro import macro, Type
 import time
 from dirsync import sync
 import os
+from PyTango import DeviceProxy
 
 @macro()
 def userPreAcq(self):
@@ -25,8 +26,10 @@ def userPreAcq(self):
         ampl        = magnConf['ampl']
         magwaittime = magnConf['waitTime']
         magnet      = self.getMotion(["magnet"])
+        magnetState = DeviceProxy('hhg/MagnetState/moke')
         
         magnet.move(-1*ampl)
+        magnetState.magnet = -1*ampl
         
         self.debug('mag. waiting for %.2f s', magwaittime)
         time.sleep(magwaittime)        
@@ -38,6 +41,7 @@ def userPreAcq(self):
             state, data = mnt_grp.count(integ_time)
                        
         magnet.move(+1*ampl)
+        magnetState.magnet = +1*ampl
         
         self.debug('mag. waiting for %.2f s', magwaittime)
         time.sleep(magwaittime)                
