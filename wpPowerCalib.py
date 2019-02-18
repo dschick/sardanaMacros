@@ -16,16 +16,16 @@ def wpCalibScan(self):
     acqConf     = self.getEnv('acqConf')
     altOn       = acqConf['altOn']
     oldWaitTime = acqConf['waitTime']
-    newWaitTime = 1
+    newWaitTime = 6
     
-    counter = 'thorlabsPM'
+    counter = 'fieldMax2'
     motor   = 'wp'
     
     self.execMacro('waittime', newWaitTime)
-    self.execMacro('altoff')
-    self.execMacro('pumpoff')   
+    #self.execMacro('altoff')
+    #self.execMacro('pumpoff')   
         
-    scan, _ = self.createMacro('ascan', 'wp', '-5', '55', '60', '1')
+    scan, _ = self.createMacro('ascan', 'wp', '-5', '55', '30', '1')
     # createMacro returns a tuple composed from a macro object
     # and the result of the Macro.prepare method
     
@@ -34,8 +34,8 @@ def wpCalibScan(self):
     self.execMacro('waittime', oldWaitTime)
     
     # in case alternate was on before switch it on again
-    if altOn:
-        self.execMacro('alton')
+    #if altOn:
+    #    self.execMacro('alton')
         
     data = scan.data
         
@@ -62,7 +62,7 @@ def wpCalibScan(self):
     self.pyplot.plot(wp, out.best_fit, label='fit')
     self.pyplot.title(r'Fit data by $P(wp) = P_m*(sin((wp-offset)*2/180*\pi*period)^2)+P_0$')
     self.pyplot.xlabel('wp angle [deg.]')
-    self.pyplot.xlabel('laser power [W]')
+    self.pyplot.ylabel('laser power [W]')
     self.pyplot.legend()
     
     self.execMacro('powerconf', out.best_values['P0'], out.best_values['Pm'], out.best_values['offset'], out.best_values['period'])
