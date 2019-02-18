@@ -52,7 +52,7 @@ def userPreAcq(self):
 def userPreScan(self):
     # print the current configuration with macros like:
     # acqrep, magnrep, fluencerep, powerrep
-    pass
+    self.execMacro('acqrep')
     
 @macro()
 def userPostScan(self):
