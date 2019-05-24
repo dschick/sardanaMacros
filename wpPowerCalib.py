@@ -4,13 +4,13 @@ __docformat__ = 'restructuredtext'
 
 import numpy as np
 import lmfit
-import PyTango
+#import PyTango
 
-from sardana.macroserver.macro import *
+from sardana.macroserver.macro import imacro, Type, Optional
 from sardana.macroserver.scan import *
 
-@macro()
-def wpCalibScan(self):
+@imacro([["counter", Type.ExpChannel, Optional, "newportPM"]])
+def wpCalibScan(self, counter):
     """This runs a waveplate calibration scan"""
 
     acqConf     = self.getEnv('acqConf')
@@ -18,12 +18,17 @@ def wpCalibScan(self):
     oldWaitTime = acqConf['waitTime']
     newWaitTime = 1
     
-    counter = 'newportPM'
+    if counter is None:
+        counter = 'newportPM'
+    
+    self.output("User counter %s for waveplate calibration scan.", counter)
     motor   = 'wp'
+    
+    self.execMacro('plotselect', counter)
     
     self.execMacro('waittime', newWaitTime)
     self.execMacro('altoff')
-    self.execMacro('pumpoff')   
+    #self.execMacro('pumpoff')   
         
     scan, _ = self.createMacro('ascan', 'wp', '-5', '55', '60', '1')
     # createMacro returns a tuple composed from a macro object
@@ -45,6 +50,12 @@ def wpCalibScan(self):
     for idx, rc in data.items():
         pm.append(rc[counter])
         wp.append(rc[motor])
+        
+    pm = np.array(pm)
+    wp = np.array(wp)
+    # remove nans
+    wp = wp[np.logical_not(np.isnan(pm))]
+    pm = pm[np.logical_not(np.isnan(pm))]
     
     mod = lmfit.Model(sinSqrd)
     par = lmfit.Parameters()

@@ -9,7 +9,7 @@ def acqconf(self):
     label, unit = "Alternate On/Off", ""
     alt_on = self.input("Alternate Mode On/Off?", data_type=Type.Boolean,
                       title="Alternate Mode", key=label, unit=unit,
-                      default_value=acqConf['altOn'], minimum=0.0, maximum=100)
+                      default_value=acqConf['altOn'])
     
     acqConf['altOn'] = alt_on
     self.setEnv('acqConf', acqConf)
@@ -35,7 +35,7 @@ def acqrep(self):
 def waittime(self, time):
     """Macro waittime"""
     acqConf = self.getEnv('acqConf')
-    if time is Optional:
+    if time is None:
         label, unit = "Waittime", "s"
         time = self.input("Wait time before every acqisition?", 
                           data_type=Type.Float,
