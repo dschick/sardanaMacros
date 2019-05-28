@@ -160,7 +160,7 @@ def fluencerep(self):
     refl    = fluencePM.refl
     repRate = fluencePM.repRate
     
-    self.output('Fluence Settings: pumpHor = %.2f um | pumpVer = %.2f um |'
+    self.output('Fluence Settings: pumpHor = %.2f um | pumpVer = %.2f um | '
                 'refl = %.2f %% | repRate = %.2f Hz', 
                 pumpHor, pumpVer, refl, repRate)
     
@@ -217,7 +217,7 @@ def powerconf(self, P0, Pm, offset, period):
 def powerrep(self):
     # return all powerconf values
     power = PyTango.DeviceProxy("pm/powerctrl/1")
-    self.output('Power Settings  : P0 = %.4f W | Pm = %.4f W |'
+    self.output('Power Settings  : P0 = %.4f W | Pm = %.4f W | '
                 'offset = %.2f deg | period = %.2f', 
                 power.P0, power.Pm, power.offset, power.period)
 
