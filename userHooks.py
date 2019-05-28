@@ -52,8 +52,16 @@ def userPreAcq(self):
 def userPreScan(self):
     # print the current configuration with macros like:
     # acqrep, magnrep, fluencerep, powerrep
-    self.execMacro('acqrep')
     
+    parent = self.getParentMacro()
+    if parent: # macro is called from another macro
+        self.execMacro('send2ctrl greateyesCtrl set_exposure 0 {:}'.format(parent.integ_time))
+        self.execMacro('send2ctrl greateyesCtrl set_exposure 1 {:}'.format(parent.integ_time)) 
+        self.execMacro('send2ctrl greateyesCtrl dark 0')
+        self.execMacro('send2ctrl greateyesCtrl dark 1')
+    
+    self.execMacro('acqrep')
+        
 @macro()
 def userPostScan(self):
     ScanDir = self.getEnv('ScanDir')
