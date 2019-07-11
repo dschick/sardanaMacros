@@ -17,18 +17,25 @@ def userPreAcq(self):
     waittime = acqConf['waitTime']
     
     if waittime:
+        self.debug('waittime is set ...')
         time.sleep(waittime)
         self.debug('waiting for %.2f s', waittime)
         
     if altOn:
+        self.debug('alton is set ...')
         # move magnet to minus amplitude
+        self.debug('reading the environment ...')
         magnConf    = self.getEnv('magnConf')
         ampl        = magnConf['ampl']
         magwaittime = magnConf['waitTime']
+        self.debug('accessing the magnet ...')
         magnet      = self.getMotion(["kepco"])
+        self.debug('accessing the magnet state ...')
         magnetState = DeviceProxy("hhg/MagnetState/xmcd")
         
-        magnet.move(-1*ampl)
+        self.debug('move the magnet -1 ...')
+        magnet.move(-1*ampl)        
+        self.debug('change the magnet state -1 ...')
         magnetState.magnet = -1*ampl
         
         self.debug('mag. waiting for %.2f s', magwaittime)
@@ -36,17 +43,20 @@ def userPreAcq(self):
         
         parent = self.getParentMacro()
         if parent:
+            self.debug('do pre-acquisition ...')
             integ_time  = parent.integ_time
             mnt_grp     = self.getObj(self.getEnv('ActiveMntGrp'), type_class=Type.MeasurementGroup)
             state, data = mnt_grp.count(integ_time)
-                       
+
+        self.debug('move the magnet +1 ...')
         magnet.move(+1*ampl)
+        self.debug('change the magnet state +1 ...')
         magnetState.magnet = +1*ampl
         
         self.debug('mag. waiting for %.2f s', magwaittime)
         time.sleep(magwaittime)                
     else:
-        pass
+        self.debug('alton is off ...')
     
 @macro()
 def userPreScan(self):
