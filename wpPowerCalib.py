@@ -20,6 +20,8 @@ def wpCalibScan(self, counter):
     
     if counter is None:
         counter = 'fieldMax2'
+    else:
+        counter = str(counter)
     
     self.output("User counter %s for waveplate calibration scan.", counter)
     motor   = 'wp'
