@@ -6,6 +6,7 @@ Created on Tue May 22 12:57:08 2018
 """
 from sardana.macroserver.macro import macro, Type
 import time
+from datetime import datetime
 from dirsync import sync
 import os
 from PyTango import DeviceProxy
@@ -15,7 +16,30 @@ def userPreAcq(self):
     acqConf  = self.getEnv('acqConf')
     altOn    = acqConf['altOn']
     waittime = acqConf['waitTime']
+    parent = self.getParentMacro()
     
+    scanDir  = self.getEnv('ScanDir')
+    scanFile = self.getEnv('ScanFile')[0].replace('.', '_')
+    scanID = self.getEnv('ScanID')
+    geCtrl = DeviceProxy('controller/greateyescountertimercontroller/greateyesctrl')
+    
+    now = datetime.today().strftime("%Y%m%d_%H%M%S_%f")
+#    now = now.strftime()
+    
+    # check if this is a ct
+    if parent and (parent._name == 'ct'):
+        fileName = '{:s}{:s}/ct/{:s}'.format(scanDir, scanFile, now)
+        fileName = fileName[1:]
+        geCtrl.pointnb = -1
+    elif parent: # it is a scan
+        fileName = '{:s}{:s}/{:d}/'.format(scanDir, scanFile, scanID)
+        fileName = fileName[1:]
+        pointNb = geCtrl.pointnb
+        geCtrl.pointnb = pointNb + 1
+    else:
+        fileName   = ''
+        
+        
     if waittime:
         self.debug('waittime is set ...')
         time.sleep(waittime)
@@ -41,9 +65,12 @@ def userPreAcq(self):
         self.debug('mag. waiting for %.2f s', magwaittime)
         time.sleep(magwaittime)        
         
-        parent = self.getParentMacro()
+        
         if parent:
-            self.debug('do pre-acquisition ...')
+            self.debug('do pre-acquisition ...')            
+            fileNameMinus = fileName + 'M'
+            self.debug(fileNameMinus)
+            geCtrl.filename = fileNameMinus
             integ_time  = parent.integ_time
             mnt_grp     = self.getObj(self.getEnv('ActiveMntGrp'), type_class=Type.MeasurementGroup)
             state, data = mnt_grp.count(integ_time)
@@ -58,6 +85,10 @@ def userPreAcq(self):
     else:
         self.debug('alton is off ...')
     
+    
+    self.debug(fileName)
+    geCtrl.filename = fileName
+    
 @macro()
 def userPreScan(self):
     # print the current configuration with macros like:
@@ -69,6 +100,9 @@ def userPreScan(self):
         self.execMacro('send2ctrl greateyesCtrl set_exposure 1 {:}'.format(parent.integ_time)) 
         self.execMacro('send2ctrl greateyesCtrl dark 0')
         self.execMacro('send2ctrl greateyesCtrl dark 1')
+        # reset pointNb to 0
+        geCtrl = DeviceProxy('controller/greateyescountertimercontroller/greateyesctrl')
+        geCtrl.pointnb = 0
     
     self.execMacro('acqrep')
         
