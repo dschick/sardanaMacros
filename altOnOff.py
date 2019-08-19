@@ -41,9 +41,9 @@ def alton(self):
                             'rel9M',
                             'rel10M',
                             'fileIDM',
-                            'thorlabsPMM',
-                            'keithleyAM',
-                            'keithleyVM',
+                            #'thorlabsPMM',
+                            #'keithleyAM',
+                            #'keithleyVM',
                             'epochM',])
 
 @macro()    
@@ -87,7 +87,7 @@ def altoff(self):
                             'rel9M',
                             'rel10M',
                             'fileIDM',
-                            'thorlabsPMM',
-                            'keithleyAM',
-                            'keithleyVM',
+                            #'thorlabsPMM',
+                            #'keithleyAM',
+                            #'keithleyVM',
                             'epochM',])

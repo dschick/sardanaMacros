@@ -9,19 +9,27 @@ import time
 from datetime import datetime
 from dirsync import sync
 import os
-from PyTango import DeviceProxy
+from PyTango import AttributeProxy
 
 @macro()
 def userPreAcq(self):
-    acqConf  = self.getEnv('acqConf')
-    altOn    = acqConf['altOn']
-    waittime = acqConf['waitTime']
-    parent = self.getParentMacro()
-    
-    scanDir  = self.getEnv('ScanDir')
-    scanFile = self.getEnv('ScanFile')[0].replace('.', '_')
-    scanID = self.getEnv('ScanID')
-    geCtrl = DeviceProxy('controller/greateyescountertimercontroller/greateyesctrl')
+    try:
+        acqConf  = self.getEnv('acqConf')
+        altOn    = acqConf['altOn']
+        waittime = acqConf['waitTime']
+        parent = self.getParentMacro()
+        
+        scanDir  = self.getEnv('ScanDir')
+        scanFile = self.getEnv('ScanFile')[0].replace('.', '_')
+        scanID = self.getEnv('ScanID')
+    except:
+        self.error('Error while reading environment in userPreAcq')
+        
+    try:
+        geCtrlFileName = AttributeProxy('controller/greateyescountertimercontroller/greateyesctrl/filename')
+        geCtrlPointNB = AttributeProxy('controller/greateyescountertimercontroller/greateyesctrl/pointnb')
+    except:
+         self.error('Error while creating AttributeProxy of greateyes')
     
     now = datetime.today().strftime("%Y%m%d_%H%M%S_%f")
 #    now = now.strftime()
@@ -30,12 +38,18 @@ def userPreAcq(self):
     if parent and (parent._name == 'ct'):
         fileName = '{:s}{:s}/ct/{:s}'.format(scanDir, scanFile, now)
         fileName = fileName[1:]
-        geCtrl.pointnb = -1
+        try:
+            geCtrlPointNB.write(-1)
+        except:
+            self.error('Error while writing point Nb to greateyes')
     elif parent: # it is a scan
         fileName = '{:s}{:s}/{:d}/'.format(scanDir, scanFile, scanID)
         fileName = fileName[1:]
-        pointNb = geCtrl.pointnb
-        geCtrl.pointnb = pointNb + 1
+        try:
+            pointNb = geCtrlPointNB.read().value
+            geCtrlPointNB.write(pointNb + 1)
+        except:
+            self.error('Error while read/writing point Nb to greateyes')
     else:
         fileName   = ''
         
@@ -55,12 +69,12 @@ def userPreAcq(self):
         self.debug('accessing the magnet ...')
         magnet      = self.getMotion(["kepco"])
         self.debug('accessing the magnet state ...')
-        magnetState = DeviceProxy("hhg/MagnetState/xmcd")
+        magnetState = AttributeProxy("hhg/MagnetState/xmcd/magnet")
         
         self.debug('move the magnet -1 ...')
         magnet.move(-1*ampl)        
         self.debug('change the magnet state -1 ...')
-        magnetState.magnet = -1*ampl
+        magnetState.write(-1*ampl)
         
         self.debug('mag. waiting for %.2f s', magwaittime)
         time.sleep(magwaittime)        
@@ -70,7 +84,10 @@ def userPreAcq(self):
             self.debug('do pre-acquisition ...')            
             fileNameMinus = fileName + 'M'
             self.debug(fileNameMinus)
-            geCtrl.filename = fileNameMinus
+            try:
+                geCtrlFileName.write(fileNameMinus)
+            except:
+                self.error('Error while writing filename to greateyes')
             integ_time  = parent.integ_time
             mnt_grp     = self.getObj(self.getEnv('ActiveMntGrp'), type_class=Type.MeasurementGroup)
             state, data = mnt_grp.count(integ_time)
@@ -78,16 +95,19 @@ def userPreAcq(self):
         self.debug('move the magnet +1 ...')
         magnet.move(+1*ampl)
         self.debug('change the magnet state +1 ...')
-        magnetState.magnet = +1*ampl
+        magnetState.write(+1*ampl)
         
         self.debug('mag. waiting for %.2f s', magwaittime)
         time.sleep(magwaittime)                
     else:
-        self.debug('alton is off ...')
-    
+        self.debug('alton is off ...')    
     
     self.debug(fileName)
-    geCtrl.filename = fileName
+    try:
+        geCtrlFileName.write(fileName)
+    except:
+        self.error('Error while writing filename to greateyes')
+    self.debug('End of userPreAcq')
     
 @macro()
 def userPreScan(self):
@@ -101,8 +121,8 @@ def userPreScan(self):
         self.execMacro('send2ctrl greateyesCtrl dark 0')
         self.execMacro('send2ctrl greateyesCtrl dark 1')
         # reset pointNb to 0
-        geCtrl = DeviceProxy('controller/greateyescountertimercontroller/greateyesctrl')
-        geCtrl.pointnb = 0
+        geCtrlPointNB = AttributeProxy('controller/greateyescountertimercontroller/greateyesctrl/pointnb')
+        geCtrlPointNB.write(0)
     
     self.execMacro('acqrep')
         
