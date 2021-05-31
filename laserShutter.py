@@ -68,20 +68,63 @@ def pumpoff(self):
             self.output("Could not close Pump shutter")
 
 @macro()
-def hhgon(self):
+def probeon(self):
     """Macro laserOn"""
     pvPrefix = 'SHUTTER:HHG:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
     if shutterState == "Open":
-        self.output("HHG shutter already open")
+        self.output("Probe shutter already open")
     else:
         caput(pvPrefix + 'Flip', 3)
         time.sleep(1)
         shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
         if shutterState == "Open":
-            self.output("HHG shutter opened")
+            self.output("Probe shutter opened")
         else:
-            self.output("Could not open HHG shutter")
+            self.output("Could not open probe shutter")
+
+@macro()
+def probeoff(self):
+    """Macro laserOn"""
+    pvPrefix = 'SHUTTER:HHG:'
+    shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
+    if shutterState == "Closed":
+        self.output("Probe shutter already closed")
+    else:
+        caput(pvPrefix + 'Flip', 3)
+        time.sleep(1)
+        shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
+        if shutterState == "Closed":
+            self.output("Probe shutter closed")
+            if caget('HHG:GASCELL:pidEnabled') == 1:
+                self.output("Gas is still on!!")
+            else:
+                self.output("Gas is already off")
+        else:
+            self.output("Could not close Probe shutter")
+            
+            
+@macro()
+def hhgon(self):
+    """Macro laserOn"""
+    pvPrefix = 'SHUTTER:HHG:'
+    shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
+    if shutterState == "Open":
+        self.output("Probe shutter already open")
+        caput('HHG:GASCELL:pidEnabled', 1)
+        self.output("Gas enabled")        
+    else:
+        caput(pvPrefix + 'Flip', 3)
+        time.sleep(1)
+        shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
+        if shutterState == "Open":
+            self.output("Probe shutter opened")
+            caput('HHG:GASCELL:pidEnabled', 1)
+            self.output("Gas enabled")  
+        else:
+            self.output("Could not open probe shutter")
+            self.output("Gas has not been enabled")
+            
 
 @macro()
 def hhgoff(self):
@@ -89,12 +132,31 @@ def hhgoff(self):
     pvPrefix = 'SHUTTER:HHG:'
     shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
     if shutterState == "Closed":
-        self.output("HHG shutter already closed")
+        self.output("Probe shutter already closed")
+        caput('HHG:GASCELL:pidEnabled', 0)
+        self.output("Gas disabled") 
     else:
         caput(pvPrefix + 'Flip', 3)
         time.sleep(1)
         shutterState = caget(pvPrefix + 'Shutter_RBV', as_string=True)
         if shutterState == "Closed":
-            self.output("HHG shutter closed")
+            self.output("Probe shutter closed")
+            caput('HHG:GASCELL:pidEnabled', 0)
+            self.output("Gas disabled") 
         else:
-            self.output("Could not close HHG shutter")
+            self.output("Could not close Probe shutter")
+            caput('HHG:GASCELL:pidEnabled', 0)
+            self.output("Gas disabled anyway") 
+            
+
+@macro()
+def gason(self):
+    caput('HHG:GASCELL:pidEnabled', 1)
+    self.output("Gas enabled") 
+
+@macro()
+def gasoff(self):
+    caput('HHG:GASCELL:pidEnabled', 0)
+    self.output("Gas disabled")     
+    
+            

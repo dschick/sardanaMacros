@@ -87,6 +87,16 @@ def magnrep(self):
                 'magn. waittime = %.2f s', 
                 magnConf['ampl'], magnConf['waitTime'])
 
+@macro()
+def magnon(self):
+    self.execMacro('send2ctrl caenfastpsctrl MON')
+    self.output('Magnet output switched ON')
+
+@macro()
+def magnoff(self):
+    self.execMacro('send2ctrl caenfastpsctrl MOFF')
+    self.output('Magnet output switched OFF')
+
 @imacro([["pumpHor", Type.Float, Optional, "pumpHor"],
         ["pumpVer", Type.Float, Optional, "pumpVer"],
         ["refl", Type.Float, Optional, "reflectivity"],

@@ -67,7 +67,7 @@ def userPreAcq(self):
         ampl        = magnConf['ampl']
         magwaittime = magnConf['waitTime']
         self.debug('accessing the magnet ...')
-        magnet      = self.getMotion(["kepco"])
+        magnet      = self.getMotion(["magnet"])
         self.debug('accessing the magnet state ...')
         magnetState = AttributeProxy("hhg/MagnetState/xmcd/magnet")
         
@@ -120,6 +120,7 @@ def userPreScan(self):
         self.execMacro('send2ctrl greateyesCtrl set_exposure 1 {:}'.format(parent.integ_time)) 
         self.execMacro('send2ctrl greateyesCtrl dark 0')
         self.execMacro('send2ctrl greateyesCtrl dark 1')
+        time.sleep(1.2*parent.integ_time)
         # reset pointNb to 0
         geCtrlPointNB = AttributeProxy('controller/greateyescountertimercontroller/greateyesctrl/pointnb')
         geCtrlPointNB.write(0)
@@ -136,5 +137,7 @@ def userPostScan(self):
         sync(ScanDir, RemoteScanDir, 'sync', create=True)        
     else:
         self.warning('RemoteScanDir %s does not exist - no folder syncing', RemoteScanDir)
+
+
     
     

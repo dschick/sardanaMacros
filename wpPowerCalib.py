@@ -19,7 +19,7 @@ def wpCalibScan(self, counter):
     newWaitTime = 4
     
     if counter is None:
-        counter = 'fieldMax2'
+        counter = 'fieldMax1'
     else:
         counter = str(counter)
     
@@ -29,7 +29,7 @@ def wpCalibScan(self, counter):
     self.execMacro('plotselect', counter)
     
     self.execMacro('waittime', newWaitTime)
-    self.execMacro('altoff')
+#    self.execMacro('altoff')
     #self.execMacro('pumpoff')   
         
     scan, _ = self.createMacro('ascan', 'wp', '-5', '55', '60', '1')
@@ -41,8 +41,8 @@ def wpCalibScan(self, counter):
     self.execMacro('waittime', oldWaitTime)
     
     # in case alternate was on before switch it on again
-    if altOn:
-        self.execMacro('alton')
+#    if altOn:
+#        self.execMacro('alton')
         
     data = scan.data
         
@@ -79,7 +79,8 @@ def wpCalibScan(self, counter):
     self.pyplot.legend()
     
     self.execMacro('powerconf', out.best_values['P0'], out.best_values['Pm'], out.best_values['offset'], out.best_values['period'])
-    
+   
+
     
 def sinSqrd(x,Pm,P0,offset,period):
     return Pm*(np.sin(np.radians(x-offset)*2*period)**2) + P0
